@@ -7,8 +7,8 @@
   <style>
     body {
       margin: 0;
-      background-color: black;
-      color: white;
+      background-color: #000;
+      color: #fff;
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       display: flex;
       align-items: center;
@@ -19,16 +19,31 @@
 
     .center {
       text-align: center;
+      position: relative;
     }
 
+    /* Spinner container */
     #spinner {
+      position: relative;
       width: 100px;
       height: 100px;
-      border: 6px solid #444;
-      border-top: 6px solid red;
+      margin: 20px auto;
+      border: 8px solid #444;
+      border-top: 8px solid #888;
       border-radius: 50%;
       animation: spin 1s linear infinite;
-      margin: 20px auto;
+    }
+
+    /* İçindeki "BE READY" yazısı */
+    #spinner::after {
+      content: "BE READY";
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 14px;
+      color: #bbb;
+      letter-spacing: 1px;
     }
 
     @keyframes spin {
@@ -46,53 +61,49 @@
       height: 100%;
       top: 0;
       left: 0;
-    }
-
-    h1 {
-      font-size: 24px;
-      color: #aaa;
+      cursor: pointer;
     }
 
     .score {
       font-size: 20px;
       margin-top: 20px;
-      color: #00ffcc;
+      color: #0ff;
+      text-shadow: 0 0 8px #0ff;
     }
 
     .leaderboard {
       margin-top: 40px;
       color: #ddd;
+      font-size: 16px;
     }
 
     .premium-glow {
-      text-shadow: 0 0 15px #ff0000, 0 0 20px #ff0000;
+      text-shadow: 0 0 15px #888, 0 0 20px #888;
     }
   </style>
 </head>
 <body>
   <div class="center">
-    <h1 class="premium-glow">Be Ready</h1>
     <div id="spinner"></div>
     <div id="result" class="hidden"></div>
     <div id="leaderboard" class="hidden leaderboard"></div>
   </div>
 
-  <div class="click-area hidden" id="clickArea"></div>
+  <div id="clickArea" class="click-area hidden"></div>
 
   <script>
-    let startTime, endTime;
-    let timeout;
+    let startTime, endTime, timeout;
 
     function startReflexTest() {
       document.getElementById("clickArea").classList.add("hidden");
       document.getElementById("result").classList.add("hidden");
       document.getElementById("leaderboard").classList.add("hidden");
+      document.getElementById("spinner").classList.remove("hidden");
 
-      // Spinner animation 2-4 sn sürsün
-      const waitTime = Math.floor(Math.random() * 2000) + 2000;
+      const waitTime = Math.random() * 2000 + 2000;
       timeout = setTimeout(() => {
         document.getElementById("spinner").classList.add("hidden");
-        navigator.vibrate?.(200); // Titretme
+        navigator.vibrate?.(200);
         startTime = performance.now();
         document.getElementById("clickArea").classList.remove("hidden");
       }, waitTime);
@@ -100,27 +111,25 @@
 
     document.getElementById("clickArea").addEventListener("click", () => {
       endTime = performance.now();
+      clearTimeout(timeout);
       const reactionTime = Math.round(endTime - startTime);
-      document.getElementById("clickArea").classList.add("hidden");
 
+      document.getElementById("clickArea").classList.add("hidden");
       const resultEl = document.getElementById("result");
       resultEl.innerHTML = `<div class="score">⏱ Tepki Süresi: <strong>${reactionTime} ms</strong></div>`;
       resultEl.classList.remove("hidden");
 
       const leaderboard = document.getElementById("leaderboard");
       leaderboard.innerHTML = `
-        🌍 Dünya Sıralaman: <strong>#${Math.floor(Math.random()*10000)+1}</strong><br>
-        👥 Arkadaşlar Arasında: <strong>#${Math.floor(Math.random()*10)+1}</strong>
+        🌍 Dünya Sıralaman: <strong>#${Math.floor(Math.random() * 10000) + 1}</strong><br>
+        👥 Arkadaşlar Arasında: <strong>#${Math.floor(Math.random() * 10) + 1}</strong>
       `;
       leaderboard.classList.remove("hidden");
 
-      // 5 saniye sonra tekrar başla
-      setTimeout(() => {
-        document.getElementById("spinner").classList.remove("hidden");
-        startReflexTest();
-      }, 5000);
+      setTimeout(startReflexTest, 5000);
     });
 
+    // Kick it off
     startReflexTest();
   </script>
 </body>

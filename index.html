@@ -1,86 +1,127 @@
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Tıktır - Titreşimde Dokun</title>
-<style>
-  html, body {
-    height: 100%;
-    margin: 0;
-    background-color: #000;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    color: #ffd700;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  #game {
-    text-align: center;
-  }
-  #countdown {
-    font-size: 4em;
-    margin-bottom: 20px;
-  }
-  #result {
-    font-size: 2em;
-  }
-  button {
-    font-size: 2em;
-    padding: 10px 30px;
-    background-color: #111;
-    border: 2px solid #ffd700;
-    color: #ffd700;
-    border-radius: 5px;
-    cursor: pointer;
-  }
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Reflex Ultra</title>
+  <style>
+    body {
+      margin: 0;
+      background-color: black;
+      color: white;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    .center {
+      text-align: center;
+    }
+
+    #spinner {
+      width: 100px;
+      height: 100px;
+      border: 6px solid #444;
+      border-top: 6px solid red;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 20px auto;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .click-area {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+    }
+
+    h1 {
+      font-size: 24px;
+      color: #aaa;
+    }
+
+    .score {
+      font-size: 20px;
+      margin-top: 20px;
+      color: #00ffcc;
+    }
+
+    .leaderboard {
+      margin-top: 40px;
+      color: #ddd;
+    }
+
+    .premium-glow {
+      text-shadow: 0 0 15px #ff0000, 0 0 20px #ff0000;
+    }
+  </style>
 </head>
 <body>
-<div id="game">
-  <div id="countdown">30</div>
-  <button id="touchBtn" disabled>Hazır...</button>
-  <div id="result"></div>
-</div>
-<script>
-  const countdownEl = document.getElementById('countdown');
-  const button = document.getElementById('touchBtn');
-  const resultEl = document.getElementById('result');
-  let startTime = null;
-  let vibed = false;
+  <div class="center">
+    <h1 class="premium-glow">Be Ready</h1>
+    <div id="spinner"></div>
+    <div id="result" class="hidden"></div>
+    <div id="leaderboard" class="hidden leaderboard"></div>
+  </div>
 
-  function startGame() {
-    let timeLeft = 30;
-    countdownEl.textContent = timeLeft;
-    const countdownInterval = setInterval(() => {
-      timeLeft -= 1;
-      countdownEl.textContent = timeLeft;
-      if (timeLeft <= 0) {
-        clearInterval(countdownInterval);
-        button.disabled = true;
-        resultEl.textContent = 'Süre doldu!';
-      }
-    }, 1000);
+  <div class="click-area hidden" id="clickArea"></div>
 
-    const vibeDelay = Math.floor(Math.random() * 25000) + 1000; // 1-25s
-    setTimeout(() => {
-      if (navigator.vibrate) {
-        navigator.vibrate(200);
-      }
-      vibed = true;
-      startTime = performance.now();
-      button.disabled = false;
-      button.textContent = 'Dokun!';
-    }, vibeDelay);
-  }
+  <script>
+    let startTime, endTime;
+    let timeout;
 
-  button.addEventListener('click', () => {
-    if (!vibed) return;
-    const reaction = performance.now() - startTime;
-    button.disabled = true;
-    resultEl.textContent = `Bugünkü refleksin: ${reaction.toFixed(0)} ms`;
-  });
+    function startReflexTest() {
+      document.getElementById("clickArea").classList.add("hidden");
+      document.getElementById("result").classList.add("hidden");
+      document.getElementById("leaderboard").classList.add("hidden");
 
-  startGame();
-</script>
+      // Spinner animation 2-4 sn sürsün
+      const waitTime = Math.floor(Math.random() * 2000) + 2000;
+      timeout = setTimeout(() => {
+        document.getElementById("spinner").classList.add("hidden");
+        navigator.vibrate?.(200); // Titretme
+        startTime = performance.now();
+        document.getElementById("clickArea").classList.remove("hidden");
+      }, waitTime);
+    }
+
+    document.getElementById("clickArea").addEventListener("click", () => {
+      endTime = performance.now();
+      const reactionTime = Math.round(endTime - startTime);
+      document.getElementById("clickArea").classList.add("hidden");
+
+      const resultEl = document.getElementById("result");
+      resultEl.innerHTML = `<div class="score">⏱ Tepki Süresi: <strong>${reactionTime} ms</strong></div>`;
+      resultEl.classList.remove("hidden");
+
+      const leaderboard = document.getElementById("leaderboard");
+      leaderboard.innerHTML = `
+        🌍 Dünya Sıralaman: <strong>#${Math.floor(Math.random()*10000)+1}</strong><br>
+        👥 Arkadaşlar Arasında: <strong>#${Math.floor(Math.random()*10)+1}</strong>
+      `;
+      leaderboard.classList.remove("hidden");
+
+      // 5 saniye sonra tekrar başla
+      setTimeout(() => {
+        document.getElementById("spinner").classList.remove("hidden");
+        startReflexTest();
+      }, 5000);
+    });
+
+    startReflexTest();
+  </script>
 </body>
 </html>

@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<title>Tıktır - Titreşimde Dokun</title>
+<style>
+  html, body {
+    height: 100%;
+    margin: 0;
+    background-color: #000;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #ffd700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  #game {
+    text-align: center;
+  }
+  #countdown {
+    font-size: 4em;
+    margin-bottom: 20px;
+  }
+  #result {
+    font-size: 2em;
+  }
+  button {
+    font-size: 2em;
+    padding: 10px 30px;
+    background-color: #111;
+    border: 2px solid #ffd700;
+    color: #ffd700;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+</style>
+</head>
+<body>
+<div id="game">
+  <div id="countdown">30</div>
+  <button id="touchBtn" disabled>Hazır...</button>
+  <div id="result"></div>
+</div>
+<script>
+  const countdownEl = document.getElementById('countdown');
+  const button = document.getElementById('touchBtn');
+  const resultEl = document.getElementById('result');
+  let startTime = null;
+  let vibed = false;
+
+  function startGame() {
+    let timeLeft = 30;
+    countdownEl.textContent = timeLeft;
+    const countdownInterval = setInterval(() => {
+      timeLeft -= 1;
+      countdownEl.textContent = timeLeft;
+      if (timeLeft <= 0) {
+        clearInterval(countdownInterval);
+        button.disabled = true;
+        resultEl.textContent = 'Süre doldu!';
+      }
+    }, 1000);
+
+    const vibeDelay = Math.floor(Math.random() * 25000) + 1000; // 1-25s
+    setTimeout(() => {
+      if (navigator.vibrate) {
+        navigator.vibrate(200);
+      }
+      vibed = true;
+      startTime = performance.now();
+      button.disabled = false;
+      button.textContent = 'Dokun!';
+    }, vibeDelay);
+  }
+
+  button.addEventListener('click', () => {
+    if (!vibed) return;
+    const reaction = performance.now() - startTime;
+    button.disabled = true;
+    resultEl.textContent = `Bugünkü refleksin: ${reaction.toFixed(0)} ms`;
+  });
+
+  startGame();
+</script>
+</body>
+</html>
